@@ -5,6 +5,7 @@ import { JwtAuthGuard } from 'src/common/guards/jwt-auth.guard';
 import { RolesGuard } from 'src/common/guards/roles.guard';
 import { Role } from 'src/schemas/userschema';
 import { Roles } from 'src/auth/roles.decorator';
+import { ICreatePollDto, IVoteDto, IUpdatePollDto } from 'src/types';
 
 @Controller('polls')
 @UseGuards(JwtAuthGuard, RolesGuard)
@@ -13,8 +14,11 @@ export class PollsController {
 
   @Post('create')
   @Roles(Role.ADMIN)
-  create(@Req() req, @Body() body: any) {
-    return this.pollsService.createPoll(req.user, body.title, body.options, body.duration, body.visibility, body.allowedUsers || []);
+  create(@Req() req, @Body() body: ICreatePollDto) {
+    return this.pollsService.createPoll(
+      req.user,
+      body
+    );
   }
 
   @Get()
@@ -23,31 +27,26 @@ export class PollsController {
   }
 
   @Post(':id/vote')
-  vote(@Req() req, @Param('id') id: string, @Body() body: { option: string }) {
-    return this.pollsService.vote(req.user, id, body.option);
+  vote(@Req() req, @Param('id') id: string, @Body() body: IVoteDto) {
+    return this.pollsService.vote(req.user, id, body);
   }
 
   @Get('results')
   getAllResults(@Req() req) {
     return this.pollsService.getAllResults(req.user);
-  } 
-
+  }
 
   @Put(':id')
   @Roles(Role.ADMIN)
   update(
     @Req() req,
     @Param('id') id: string,
-    @Body() body: { title?: string, options?: string[], duration?: number, visibility?: 'public' | 'private', allowedUsers?: string[] }
+    @Body() body: IUpdatePollDto
   ) {
     return this.pollsService.updatePoll(
       req.user,
       id,
-      body.title,
-      body.options,
-      body.duration,
-      body.visibility,
-      body.allowedUsers
+      body
     );
   }
 

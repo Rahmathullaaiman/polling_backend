@@ -6,6 +6,7 @@ import { JwtService } from '@nestjs/jwt';
 import { Role } from 'src/schemas/userschema';
 import { UsersService } from 'src/users/users.service';
 import { validateUserCredentials } from 'src/helpers/validateUserCredentials';
+import { IUser } from 'src/types';
 
 @Injectable()
 export class AuthService {
@@ -14,9 +15,9 @@ export class AuthService {
     private jwtService: JwtService,
   ) { }
 
-  async register(username: string, password: string, role: string) {
+  async register(user: IUser) {
     try {
-      const result = await this.usersService.createUser(username, password, role as Role);
+      const result = await this.usersService.createUser(user);
       return {
         statusCode: 200,
         success: true,
@@ -32,12 +33,11 @@ export class AuthService {
     }
   }
 
-
-  async login(username: string, password: string) {
+  async login(user: IUser) {
     try {
-      const user = await validateUserCredentials(this.usersService, username, password);
+      const foundUser = await validateUserCredentials(this.usersService, user.username, user.password);
 
-      if (!user) {
+      if (!foundUser) {
         return {
           statusCode: 401,
           success: false,
@@ -45,9 +45,9 @@ export class AuthService {
         };
       }
 
-      const payload = { sub: user.id, role: user.role };
+      const payload = { sub: foundUser.id, role: foundUser.role };
       const { password: _, ...userWithoutPassword } =
-        user.toObject ? user.toObject() : user;
+        foundUser.toObject ? foundUser.toObject() : foundUser;
 
       return {
         statusCode: 200,
@@ -66,8 +66,6 @@ export class AuthService {
       };
     }
   }
-
-
 
   async logout() {
     return { message: 'Logout successful. Please discard your token.' };

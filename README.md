@@ -34,6 +34,14 @@ The system demonstrates:
 - Expired polls are locked for voting but results remain visible
 - **Duplicate vote prevention**
 
+### 🛡️ Security: Guards, Interceptors & Middleware
+- **JWT Guards**: Protect all sensitive endpoints, ensuring only authenticated users can access them.
+- **Role Guards**: Enforce role-based access (Admin/User) for poll management and voting.
+- **Global Security Interceptor**: Masks sensitive fields (like passwords) in API responses and logs requests for audit.
+- **CORS Middleware**: Restricts allowed origins, headers, and methods for cross-origin requests.
+- **Input Validation**: All user and poll inputs are validated and sanitized to prevent injection attacks.
+- **Error Handling**: Unauthorized and invalid actions are blocked with clear error messages.
+
 ### ⚙️ Implementation Details
 - **JWT & Role Guards**: Protect routes and validate access
 - **Functional Triggers**: Each poll action (create, edit, vote) secured with guards + validation

@@ -5,36 +5,36 @@ import { Model } from 'mongoose';
 import { Role, User, UserDocument } from 'src/schemas/userschema';
 import * as bcrypt from 'bcryptjs';
 import { validateUserInput } from 'src/helpers/validateUserInput';
+import { IUser } from 'src/types';
 
 @Injectable()
 export class UsersService {
   constructor(@InjectModel(User.name) private userModel: Model<UserDocument>) { }
 
-
-  async createUser(username: string, password: string, role?: Role) {
-    console.log("Creating user:", { username, role, password });
+  async createUser(userData: IUser) {
+    console.log("Creating user:", userData);
 
     try {
       await validateUserInput(
-        username,
-        password,
-        role,
+        userData.username,
+        userData.password,
+        userData.role,
         async (uname: string) => !!(await this.userModel.findOne({ username: uname }))
       );
 
-      const hashedPassword = await bcrypt.hash(password, 10);
+      const hashedPassword = await bcrypt.hash(userData.password, 10);
 
       let permissions = {};
-      if (role === Role.ADMIN) {
+      if (userData.role === Role.ADMIN) {
         permissions = { isAdmin: true, canEdit: true };
       } else {
         permissions = { isAdmin: false, canEdit: true };
       }
 
       const user = new this.userModel({
-        username,
+        username: userData.username,
         password: hashedPassword,
-        role: role || Role.USER,
+        role: userData.role || Role.USER,
         permissions,
       });
 
@@ -54,7 +54,6 @@ export class UsersService {
       throw new Error(error.message);
     }
   }
-
 
   async findByUsername(username: string) {
     return this.userModel.findOne({ username }).select('+username +role +password');

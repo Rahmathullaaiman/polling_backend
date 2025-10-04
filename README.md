@@ -97,5 +97,3 @@ npm run start:dev
 📩 Submission
 
 GitHub Repo: https://github.com/Rahmathullaaiman/polling_backend.git
-
-Demo Recording: 
